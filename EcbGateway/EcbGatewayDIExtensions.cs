@@ -9,10 +9,6 @@ public static class EcbGatewayDIExtensions
 {
     public static IServiceCollection AddEcbGateway(this IServiceCollection services)
     {
-        //services.Configure<EcbGatewaySettings>((x =>
-        //{
-        //});
-
         services.AddHttpClient(Constants.EcbHttpClientName);
         services.TryAddScoped<IEcbService, EcbService>();
         return services;

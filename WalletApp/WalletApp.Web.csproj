@@ -10,4 +10,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EcbGateway\EcbGateway.csproj" />
+    <ProjectReference Include="..\WalletApp.Core\WalletApp.Core.csproj" />
+    <ProjectReference Include="..\WalletApp.Infrastructure\WalletApp.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
