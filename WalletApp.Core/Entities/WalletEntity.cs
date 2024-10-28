@@ -2,9 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WalletApp.Infrastructure.Database.Tables;
+namespace WalletApp.Core.Entities;
 
-public class Wallet
+[Table("Wallet")]
+public class WalletEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

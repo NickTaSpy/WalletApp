@@ -3,9 +3,10 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WalletApp.Infrastructure.Database.Tables;
+namespace WalletApp.Core.Entities;
 
-public class CurrencyRate
+[Table("CurrencyRate")]
+public class CurrencyRateEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

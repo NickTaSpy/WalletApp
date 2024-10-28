@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WalletApp.Core;
+using WalletApp.Infrastructure;
 using WalletApp.Infrastructure.Database;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,12 +17,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddMemoryCache();
+
 // Ecb Gateway dependencies
 builder.Services.AddEcbGateway();
 
-// Database
-builder.Services.AddDbContext<WalletAppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("WalletApp")));
+// Core Dependencies
+builder.Services.AddWalletAppCore();
+
+// Infrastructure
+builder.Services.AddWalletAppInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
