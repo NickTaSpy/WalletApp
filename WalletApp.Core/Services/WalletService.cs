@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,16 +8,21 @@ using WalletApp.Core.Entities;
 using WalletApp.Core.Interfaces;
 using WalletApp.Core.Models;
 using WalletApp.Core.Models.Requests;
+using WalletApp.Core.Validators;
 
 namespace WalletApp.Core.Services;
 
 public class WalletService : IWalletService
 {
     private readonly IWalletAppDbContext _dbContext;
+    private readonly IValidator<AdjustWalletBalanceRequest> _adjustWalletBalanceRequestValidator;
 
-    public WalletService(IWalletAppDbContext dbContext)
+    public WalletService(
+        IWalletAppDbContext dbContext,
+        IValidator<AdjustWalletBalanceRequest> adjustWalletBalanceRequestValidator)
     {
         _dbContext = dbContext;
+        _adjustWalletBalanceRequestValidator = adjustWalletBalanceRequestValidator;
     }
 
     public async Task<Wallet> CreateWallet(CancellationToken ct = default)
@@ -53,16 +59,12 @@ public class WalletService : IWalletService
         return wallet.Balance * conversionRate;
     }
 
-    public async Task<decimal> AdjustWalletBalance(AdjustWalletBalanceRequest request, CancellationToken ct = default)
+    public async Task<decimal> AdjustWalletBalance(long walletId, AdjustWalletBalanceRequest request, CancellationToken ct = default)
     {
-        //todo
-        if (request.Strategy is null)
-        {
-            throw new WalletAppException("Undefined strategy");
-        }
+        _adjustWalletBalanceRequestValidator.ValidateAndThrow(request);
 
-        var wallet = await _dbContext.Wallets.FindAsync([request.WalletId], ct)
-            ?? throw new WalletAppException("Could not find wallet with ID " + request.WalletId);
+        var wallet = await _dbContext.Wallets.FindAsync([walletId], ct)
+            ?? throw new WalletAppException("Could not find wallet with ID " + walletId);
 
         // If currency is unspecified, then assume wallet's currency.
         if (!string.IsNullOrEmpty(request.Currency))
@@ -70,7 +72,7 @@ public class WalletService : IWalletService
             request.Amount *= await GetCurrencyConversionRate(request.Currency, wallet.Currency, ct);
         }
 
-        wallet.Balance = AdjustBalance(wallet.Balance, request.Amount, request.Strategy.Value);
+        wallet.Balance = AdjustBalance(wallet.Balance, request.Amount, request.Strategy!.Value);
 
         await _dbContext.SaveAsync(ct);
 

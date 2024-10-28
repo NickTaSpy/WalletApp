@@ -31,16 +31,22 @@ public class WalletsController : ControllerBase
     }
 
     [HttpGet("{walletId}")]
-    public async Task<ActionResult<decimal>> RetrieveWalletBalance(long walletId, string? currency, CancellationToken ct = default)
+    public async Task<ActionResult<decimal>> RetrieveWalletBalance(
+        [FromRoute] long walletId,
+        [FromQuery] string? currency,
+        CancellationToken ct = default)
     {
         var balance = await _walletService.RetrieveWalletBalance(walletId, currency, ct);
         return Ok(balance);
     }
 
     [HttpPost("{walletId}/adjustBalance")]
-    public async Task<ActionResult> AdjustWalletBalance(AdjustWalletBalanceRequest request, CancellationToken ct = default)
+    public async Task<ActionResult> AdjustWalletBalance(
+        [FromRoute] long walletId,
+        [FromQuery] AdjustWalletBalanceRequest request,
+        CancellationToken ct = default)
     {
-        var balance = await _walletService.AdjustWalletBalance(request, ct);
+        var balance = await _walletService.AdjustWalletBalance(walletId, request, ct);
         return Ok(balance);
     }
 }
