@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,21 +18,32 @@ public class WalletService : IWalletService
 {
     private readonly IWalletAppDbContext _dbContext;
     private readonly IValidator<AdjustWalletBalanceRequest> _adjustWalletBalanceRequestValidator;
+    private readonly IValidator<CreateWalletRequest> _createWalletRequestValidator;
+    private readonly IMemoryCache _memoryCache;
+    private readonly ICurrencyService _currencyService;
 
     public WalletService(
         IWalletAppDbContext dbContext,
-        IValidator<AdjustWalletBalanceRequest> adjustWalletBalanceRequestValidator)
+        IValidator<AdjustWalletBalanceRequest> adjustWalletBalanceRequestValidator,
+        IValidator<CreateWalletRequest> createWalletRequestValidator,
+        IMemoryCache memoryCache,
+        ICurrencyService currencyService)
     {
         _dbContext = dbContext;
         _adjustWalletBalanceRequestValidator = adjustWalletBalanceRequestValidator;
+        _createWalletRequestValidator = createWalletRequestValidator;
+        _memoryCache = memoryCache;
+        _currencyService = currencyService;
     }
 
-    public async Task<Wallet> CreateWallet(CancellationToken ct = default)
+    public async Task<Wallet> CreateWallet(CreateWalletRequest request, CancellationToken ct = default)
     {
+        _createWalletRequestValidator.ValidateAndThrow(request);
+
         var data = new WalletEntity
         {
-            Balance = 5000m,
-            Currency = "EUR"
+            Balance = request.Balance,
+            Currency = request.Currency,
         };
 
         await _dbContext.Wallets.AddAsync(data, ct);
@@ -54,7 +67,7 @@ public class WalletService : IWalletService
             return wallet.Balance;
         }
 
-        var conversionRate = await GetCurrencyConversionRate(wallet.Currency, currency, ct);
+        var conversionRate = await _currencyService.GetCurrencyConversionRate(wallet.Currency, currency, ct);
 
         return wallet.Balance * conversionRate;
     }
@@ -69,7 +82,7 @@ public class WalletService : IWalletService
         // If currency is unspecified, then assume wallet's currency.
         if (!string.IsNullOrEmpty(request.Currency))
         {
-            request.Amount *= await GetCurrencyConversionRate(request.Currency, wallet.Currency, ct);
+            request.Amount *= await _currencyService.GetCurrencyConversionRate(request.Currency, wallet.Currency, ct);
         }
 
         wallet.Balance = AdjustBalance(wallet.Balance, request.Amount, request.Strategy!.Value);
@@ -97,42 +110,5 @@ public class WalletService : IWalletService
             default:
                 throw new WalletAppException($"{nameof(AdjustFundsStrategy)}.{strategy} not supported.");
         }
-    }
-
-    private async Task<decimal> GetCurrencyConversionRate(string currencyFrom, string currencyTo, CancellationToken ct = default)
-    {
-        var currentRates = await GetCurrentCurrencyRates(ct);
-
-        if (currencyFrom == currencyTo)
-        {
-            return 1m;
-        }
-
-        if (currencyFrom == "EUR")
-        {
-            return currentRates.FirstOrDefault(x => x.Currency == currencyTo)?.Rate
-                ?? throw new WalletAppException("Could not find currency rate for " + currencyTo);
-        }
-
-        var fromCurrencyRate = currentRates.FirstOrDefault(x => x.Currency == currencyFrom)?.Rate
-            ?? throw new WalletAppException("Could not find currency rate for " + currencyFrom);
-
-        if (currencyTo == "EUR")
-        {
-            return 1m / fromCurrencyRate;
-        }
-
-        var toCurrencyRate = currentRates.FirstOrDefault(x => x.Currency == currencyTo)?.Rate
-            ?? throw new WalletAppException("Could not find currency rate for " + currencyTo);
-
-        return toCurrencyRate / fromCurrencyRate;
-    }
-
-    private async Task<IEnumerable<CurrencyRateEntity>> GetCurrentCurrencyRates(CancellationToken ct = default)
-    {
-        return await _dbContext.CurrencyRates
-            .Where(x => x.Date == _dbContext.CurrencyRates.Max(y => y.Date))
-            .AsNoTracking()
-            .ToArrayAsync(ct);
     }
 }

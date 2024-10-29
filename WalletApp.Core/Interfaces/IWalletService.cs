@@ -7,7 +7,7 @@ namespace WalletApp.Core.Interfaces;
 
 public interface IWalletService
 {
-    public Task<Wallet> CreateWallet(CancellationToken ct = default);
+    public Task<Wallet> CreateWallet(CreateWalletRequest request, CancellationToken ct = default);
     public Task<decimal> RetrieveWalletBalance(long walletId, string? currency, CancellationToken ct = default);
     public Task<decimal> AdjustWalletBalance(long walletId, AdjustWalletBalanceRequest request, CancellationToken ct = default);
 }

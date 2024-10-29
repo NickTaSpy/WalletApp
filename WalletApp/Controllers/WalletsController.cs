@@ -1,3 +1,4 @@
+using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading;
@@ -24,9 +25,11 @@ public class WalletsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Wallet>> CreateWallet(CancellationToken ct = default)
+    public async Task<ActionResult<Wallet>> CreateWallet(
+        [FromBody] CreateWalletRequest request,
+        CancellationToken ct = default)
     {
-        var wallet =  await _walletService.CreateWallet(ct);
+        var wallet =  await _walletService.CreateWallet(request, ct);
         return Ok(wallet);
     }
 

@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcbGateway", "EcbGateway\Ec
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0929040F-C512-4B1E-B48C-D95E2EBF80B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcbGateway.Tests", "EcbGateway.Tests\EcbGateway.Tests.csproj", "{EB5B6A80-1E08-4518-93FA-34DD4A87A0BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcbGateway.Tests", "EcbGateway.Tests\EcbGateway.Tests.csproj", "{EB5B6A80-1E08-4518-93FA-34DD4A87A0BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WalletApp.Core.Tests", "WalletApp.Core.Tests\WalletApp.Core.Tests.csproj", "{69582BCD-289E-4EDF-90D0-B17E34805EB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,12 +43,17 @@ Global
 		{EB5B6A80-1E08-4518-93FA-34DD4A87A0BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB5B6A80-1E08-4518-93FA-34DD4A87A0BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB5B6A80-1E08-4518-93FA-34DD4A87A0BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69582BCD-289E-4EDF-90D0-B17E34805EB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69582BCD-289E-4EDF-90D0-B17E34805EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69582BCD-289E-4EDF-90D0-B17E34805EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69582BCD-289E-4EDF-90D0-B17E34805EB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{EB5B6A80-1E08-4518-93FA-34DD4A87A0BC} = {0929040F-C512-4B1E-B48C-D95E2EBF80B6}
+		{69582BCD-289E-4EDF-90D0-B17E34805EB1} = {0929040F-C512-4B1E-B48C-D95E2EBF80B6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F08D2AF8-DB3C-45E9-B9C2-1DDC406B92F9}
