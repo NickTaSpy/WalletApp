@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,20 +20,20 @@ public class WalletService : IWalletService
     private readonly IWalletAppDbContext _dbContext;
     private readonly IValidator<AdjustWalletBalanceRequest> _adjustWalletBalanceRequestValidator;
     private readonly IValidator<CreateWalletRequest> _createWalletRequestValidator;
-    private readonly IMemoryCache _memoryCache;
+    private readonly ILogger<WalletService> _logger;
     private readonly ICurrencyService _currencyService;
 
     public WalletService(
         IWalletAppDbContext dbContext,
         IValidator<AdjustWalletBalanceRequest> adjustWalletBalanceRequestValidator,
         IValidator<CreateWalletRequest> createWalletRequestValidator,
-        IMemoryCache memoryCache,
+        ILogger<WalletService> logger,
         ICurrencyService currencyService)
     {
         _dbContext = dbContext;
         _adjustWalletBalanceRequestValidator = adjustWalletBalanceRequestValidator;
         _createWalletRequestValidator = createWalletRequestValidator;
-        _memoryCache = memoryCache;
+        _logger = logger;
         _currencyService = currencyService;
     }
 
@@ -48,6 +49,8 @@ public class WalletService : IWalletService
 
         await _dbContext.Wallets.AddAsync(data, ct);
         await _dbContext.SaveAsync(ct);
+
+        _logger.LogInformation("Created new wallet: {@wallet}", data);
 
         return new Wallet
         {

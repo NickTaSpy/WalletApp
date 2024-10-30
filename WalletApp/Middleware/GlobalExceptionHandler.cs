@@ -22,8 +22,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        _logger.LogError(
-            exception, "Exception occurred: {Message}", exception.Message);
+        _logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
 
         var problemDetails = new ProblemDetails
         {
@@ -33,8 +32,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
 
         httpContext.Response.StatusCode = problemDetails.Status.Value;
 
-        await httpContext.Response
-            .WriteAsJsonAsync(problemDetails, cancellationToken);
+        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 
         return true;
     }

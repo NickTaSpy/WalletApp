@@ -2,64 +2,90 @@ using EcbGateway;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
+using Serilog.Events;
+using System;
 using System.Text.Json.Serialization;
 using WalletApp.Core;
 using WalletApp.Infrastructure;
 using WalletApp.Infrastructure.Database;
 using WalletApp.Web.Middleware;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+    .CreateLogger();
 
-// Add services to the container.
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
+    // Add services to the container.
+
+    builder.Services.AddSerilog();
+
+    builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            //options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.Services.AddProblemDetails();
+
+    // Ecb Gateway dependencies
+    builder.Services.AddEcbGateway();
+
+    // Core Dependencies
+    builder.Services.AddWalletAppCore();
+
+    // Infrastructure
+    builder.Services.AddWalletAppInfrastructure(builder.Configuration);
+
+    var app = builder.Build();
+
+    app.UseSerilogRequestLogging();
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
     {
-        //options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
 
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+        var context = services.GetRequiredService<WalletAppDbContext>();
+        context.Database.EnsureCreated();
+    }
 
-// Ecb Gateway dependencies
-builder.Services.AddEcbGateway();
+    app.UseHttpsRedirection();
 
-// Core Dependencies
-builder.Services.AddWalletAppCore();
+    app.UseAuthorization();
 
-// Infrastructure
-builder.Services.AddWalletAppInfrastructure(builder.Configuration);
+    app.UseExceptionHandler();
 
-var app = builder.Build();
+    app.MapControllers();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.Run();
 }
-
-using (var scope = app.Services.CreateScope())
+catch (Exception ex)
 {
-    var services = scope.ServiceProvider;
-
-    var context = services.GetRequiredService<WalletAppDbContext>();
-    context.Database.EnsureCreated();
+    Log.Fatal(ex, "Application terminated unexpectedly");
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.UseExceptionHandler();
-
-app.MapControllers();
-
-app.Run();
+finally
+{
+    Log.CloseAndFlush();
+}
 
 public partial class Program;
