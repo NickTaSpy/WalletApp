@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0929040F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcbGateway.Tests", "EcbGateway.Tests\EcbGateway.Tests.csproj", "{EB5B6A80-1E08-4518-93FA-34DD4A87A0BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WalletApp.Core.Tests", "WalletApp.Core.Tests\WalletApp.Core.Tests.csproj", "{69582BCD-289E-4EDF-90D0-B17E34805EB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WalletApp.Web.Tests", "WalletApp.Core.Tests\WalletApp.Web.Tests.csproj", "{69582BCD-289E-4EDF-90D0-B17E34805EB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

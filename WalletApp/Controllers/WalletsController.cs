@@ -44,7 +44,7 @@ public class WalletsController : ControllerBase
     }
 
     [HttpPost("{walletId}/adjustBalance")]
-    public async Task<ActionResult> AdjustWalletBalance(
+    public async Task<ActionResult<decimal>> AdjustWalletBalance(
         [FromRoute] long walletId,
         [FromQuery] AdjustWalletBalanceRequest request,
         CancellationToken ct = default)

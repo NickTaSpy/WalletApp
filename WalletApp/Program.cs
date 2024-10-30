@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using WalletApp.Core;
 using WalletApp.Infrastructure;
 using WalletApp.Infrastructure.Database;
+using WalletApp.Web.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,8 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddMemoryCache();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Ecb Gateway dependencies
 builder.Services.AddEcbGateway();
@@ -54,6 +56,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseExceptionHandler();
+
 app.MapControllers();
 
 app.Run();
+
+public partial class Program;

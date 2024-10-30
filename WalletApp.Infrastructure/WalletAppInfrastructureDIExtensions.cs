@@ -14,6 +14,8 @@ public static class WalletAppInfrastructureDIExtensions
 {
     public static IServiceCollection AddWalletAppInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddMemoryCache();
+
         services.AddDbContext<WalletAppDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("WalletApp")));
 
