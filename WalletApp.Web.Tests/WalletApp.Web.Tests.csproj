@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WalletApp\WalletApp.Web.csproj" />
+    <ProjectReference Include="..\WalletApp.Web\WalletApp.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
